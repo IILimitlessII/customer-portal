@@ -1,155 +1,100 @@
-## PayView API Documentation
+# Customer Portal (PayView)
 
-This document outlines the API endpoints for the PayView Customer Portal, a platform designed for secure online payments and detailed visualization of payment history. The API facilitates user registration, login, payment processing, address management, and communication with customer support.
+Full-stack customer portal for secure online payments, account management, address book, payment history, and AI-assisted customer support.
 
-### Authentication Endpoints
+## Project layout
 
-These endpoints manage user authentication and related actions.
+- `frontend/` — React + TypeScript + Vite SPA (Radix UI, Tailwind CSS, React Router)
+- `customer-express/` — Express API packaged as Netlify serverless functions (`netlify/functions/api.js`)
 
-* **`/register` (POST)**
-    * **Description:** Registers a new user. A verification email is sent to the provided email address.
-    * **Input:**
-        * `fullname`: User's full name (string)
-        * `email`: User's email address (string)
-        * `password`: User's desired password (string)
-        * `capVal`: reCAPTCHA response token (string)
-    * **Output:**
-        * Success message: "User registered successfully, please check your email to confirm"
-        * User object: `{ fullname, email }`
+## Tech stack
 
-* **`/confirm-email` (GET)**
-    * **Description:** Confirms a user's email address using a confirmation link sent during registration.  Upon successful confirmation, an email containing the user's account number is sent.
-    * **Input (Query Parameters):**
-        * `id`: User ID (string)
-        * `confirmation_gen`: Confirmation code from the email link (string)
-    * **Output:**
-        * Redirects to the login page upon successful confirmation: `https://apdscustomerportal.online/login` 
+- React 18, TypeScript, Vite
+- Express, Netlify Functions, Supabase
+- Resend (email), Google reCAPTCHA, Gemini AI
+- Tailwind CSS, shadcn/ui-style components
 
-* **`/login` (POST)**
-    * **Description:** Logs in an existing user. Sends an OTP (One-Time Password) email to the user's confirmed email address.
-    * **Input:**
-        * `accountNumber`: User's account number (string)
-        * `password`: User's password (string)
-        * `capVal`: reCAPTCHA response token (string)
-    * **Output:**
-        * Success message: "OTP sent to your email!"
-        * `sessionToken`: A unique session token (string)
+## Prerequisites
 
-* **`/verify-otp` (POST)**
-    * **Description:** Verifies the OTP provided by the user during login.
-    * **Input:**
-        * `otp`: 6-digit OTP code (string)
-        * `sessionToken`: Session token received during login (string)
-    * **Output:**
-        * Success message: "Login successful!"
+- Node.js 18+
+- [Netlify CLI](https://docs.netlify.com/cli/get-started/) (for local API development)
+- Supabase project, Resend API key, reCAPTCHA keys, and Gemini API key
 
-* **`/forgotpassword` (POST)**
-    * **Description:** Initiates a password reset. Sends an email containing a new, randomly generated password to the user's registered email address.
-    * **Input (Query Parameters):**
-        * `accountNumber`: User's account number (string)
-        * `token`: User's session token (string) 
-    * **Output:**
-        * Redirects to the login page after sending the password reset email: `https://apdscustomerportal.online/login`
+## Quick start
 
-* **`/changepassword` (POST)**
-    * **Description:** Changes the password of an authenticated user.
-    * **Input:** 
-        * `token`: User's session token (string)
-        * `password`: User's current password (string)
-        * `newpassword`: User's new password (string)
-    * **Output:**
-        * Success message: "Password Changed Successfully!"
+### Frontend
 
-* **`/logout` (POST)**
-    * **Description:** Logs out a user and clears the `sessionToken` and `otp_complete` flag. 
-    * **Input:**
-        * `sessionToken`: User's session token (string)
-    * **Output:**
-        * Success message: "Logout successful!"
+From this folder:
 
-### User Data Endpoints
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-These endpoints manage user data and are protected by a session token.
+Create `frontend/.env` with at least:
 
-* **`/address` (POST)**
-    * **Description:** Adds a new address to a user's profile.
-    * **Input:**
-        * `line_1`: Street address (string)
-        * `line_2`: Optional additional address line (string)
-        * `province`: Province (string)
-        * `city`: City (string)
-        * `postal_code`: Postal code (string)
-        * `token`: User's session token (string)
-    * **Output:**
-        * Success message: "Address saved successfully!"
+- `VITE_EXPRESS_URL` — API base URL (e.g. `http://localhost:8888/.netlify/functions/api` for local Netlify dev)
+- `VITE_SITE_KEY` — reCAPTCHA site key
+- `VITE_GEMINI` — Gemini API key (client-side chat widget)
 
-* **`/myaddresses` (POST)**
-    * **Description:** Retrieves all addresses associated with an authenticated user.
-    * **Input:**
-        * `token`: User's session token (string)
-    * **Output:**
-        * Success message: "Address saved successfully!" 
-        * `addresses`: Array of address objects (array)
+### API (local)
 
-* **`/payment` (POST)**
-    * **Description:** Processes a payment for an authenticated user. Validates card details for Credit Card and Stripe payments. Sends a confirmation email with payment information.
-    * **Input:**
-        * `email`: User's email address (string)
-        * `fullName`: User's full name (string)
-        * `paymentMethod`: Payment method ID (1 for Credit Card, 2 for PayPal, 3 for Stripe, 4 for Apple Pay) (integer)
-        * `cardNumber`: Card number (required for Credit Card and Stripe) (string)
-        * `expirationDate`: Card expiration date in MM/YY format (required for Credit Card and Stripe) (string)
-        * `cvv`: Card CVV (required for Credit Card and Stripe) (string)
-        * `amount`: Payment amount (number)
-        * `token`: User's session token (string)
-    * **Output:**
-        * Success message: "Payment processed successfully."
-        * Payment data object
+```bash
+cd customer-express
+npm install
+npm start
+```
 
-* **`/mypayments` (POST)**
-    * **Description:** Retrieves all payments associated with an authenticated user.
-    * **Input:**
-        * `token`: User's session token (string)
-    * **Output:**
-        * Success message: "Payments retrieved successfully!"
-        * `payments`: Array of payment objects (array)
+Create `customer-express/.env` with at least:
 
-* **`/userdetails` (POST)**
-    * **Description:** Fetches the details of an authenticated user.
-    * **Input:**
-        * `token`: User's session token (string)
-    * **Output:**
-        * Success message: "User retrieved successfully!"
-        * `user`: User object: `{ email, fullname, account_number }` (object)
+- `GEMINI_API`
+- `RESEND_API_KEY`
+- `SUPABASE_KEY`
+- `RECAPTCHA_SECRET`
 
-* **`/edituser` (POST)**
-    * **Description:** Updates an authenticated user's full name and email address.
-    * **Input:**
-        * `token`: User's session token (string)
-        * `fullname`: User's new full name (string)
-        * `email`: User's new email address (string)
-    * **Output:**
-        * Success message: "User updated successfully!"
-        * Updated user object (object)
+`npm start` runs `netlify dev`, which serves functions and applies the `/api/*` redirect from `netlify.toml`.
 
-### Customer Support Endpoint
+## Deployment
 
-* **`/customerform` (POST)**
-    * **Description:** Processes a contact form submission from an authenticated user. Uses Google's Gemini AI model to generate a response to the user's message. Sends an email with the AI-generated response to the user's email address. 
-    * **Input:**
-        * `fullname`: User's full name (string)
-        * `email`: User's email address (string)
-        * `message`: User's message (string)
-    * **Output:**
-        * Success message: "Expect an email response shortly..."
+- Frontend and API are intended for [Netlify](https://www.netlify.com/) deployment.
+- Production API routes are prefixed with `/api/` and proxied to `/.netlify/functions/api/:splat`.
+
+## API reference
+
+All endpoints below are relative to the API base URL. POST requests use a JSON body unless noted. Authenticated routes require a `sessionToken` (or `token`) from login/OTP flow.
+
+### Authentication
+
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | `/register` | Register user; sends verification email. Body: `fullname`, `email`, `password`, `capVal`. |
+| GET | `/confirm-email` | Confirm email via query `id`, `confirmation_gen`; redirects to login on success. |
+| POST | `/login` | Login with `accountNumber`, `password`, `capVal`; sends OTP email; returns `sessionToken`. |
+| POST | `/verify-otp` | Verify OTP with `otp`, `sessionToken`. |
+| POST | `/forgotpassword` | Reset password email. Query: `accountNumber`, `token`. |
+| POST | `/changepassword` | Change password. Body: `token`, `password`, `newpassword`. |
+| POST | `/logout` | Clear session. Body: `sessionToken`. |
+
+### User data (authenticated)
+
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | `/address` | Add address: `line_1`, `line_2`, `province`, `city`, `postal_code`, `token`. |
+| POST | `/myaddresses` | List addresses for user. Body: `token`. |
+| POST | `/payment` | Process payment. Body includes `email`, `fullName`, `paymentMethod`, `amount`, `token`, and card fields when required. |
+| POST | `/mypayments` | List payments for user. Body: `token`. |
+| POST | `/userdetails` | Get user profile. Body: `token`. |
+| POST | `/edituser` | Update `fullname` and `email`. Body: `token`, `fullname`, `email`. |
+
+### Customer support
+
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | `/customerform` | Submit support message; Gemini generates a reply emailed via Resend. Body: `fullname`, `email`, `message`. |
 
 ### Notes
 
-* All API endpoints are assumed to be prefixed with `/api/`.
-* All POST requests require a JSON body.
-* The `sessionToken` is used to authenticate all user data endpoints and the customer support endpoint.
-* The `capVal` parameter in `/register` and `/login` is used for reCAPTCHA validation to prevent bot submissions.
-* Password complexity is enforced during registration and password changes.
-* Successful payment processing through `/payment` will redirect the user to the dashboard. 
-
-This documentation provides a high-level overview of the PayView Customer Portal API. For more detailed information, refer to the source code comments. 8
+- reCAPTCHA (`capVal`) is required on `/register` and `/login`.
+- Payment methods: `1` Credit Card, `2` PayPal, `3` Stripe, `4` Apple Pay.
+- Password complexity is enforced on registration and password changes.
