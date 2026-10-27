@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from "express";
+import express, { Router } from "express";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Resend } from "resend";
 import ServerlessHttp from 'serverless-http';
@@ -59,9 +59,6 @@ app.use((req, res, next) => {
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    keyGenerator: (req, res) => {
-        return req.ip;
-    }
 });
 
 app.use(limiter)

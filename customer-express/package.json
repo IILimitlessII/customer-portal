@@ -5,29 +5,28 @@
   "type": "module",
   "scripts": {
     "start": "netlify dev",
-    "build": "netlify-lambda build functions",
-    "serve": "netlify-lambda serve functions",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node --check netlify/functions/api.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
-    "@supabase/supabase-js": "^2.45.4",
-    "axios": "^1.7.7",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "crypto": "^1.0.1",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "express-rate-limit": "^7.4.1",
-    "fs": "^0.0.1-security",
-    "netlify-cli": "^17.36.3",
-    "netlify-lambda": "^2.0.16",
-    "resend": "^4.0.0",
-    "serverless-http": "^3.2.0",
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.118.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^4.22.3",
+    "express-rate-limit": "^8.7.1",
+    "resend": "^6.34.1",
+    "serverless-http": "^4.0.0",
     "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "netlify-cli": "^27.14.3"
+  },
+  "overrides": {
+    "picomatch@<=2.3.1": "2.3.2"
   }
 }
